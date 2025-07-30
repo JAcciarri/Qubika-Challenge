@@ -32,13 +32,10 @@ public class LoginPage {
     public WebElement loginHeader;
 
 
-    public LoginPage open() {
+    public void open() {
         CommonActions.openPage(URL);
-        // Wait for the page to load
         CommonActions.waitForElementDisplayed(loginHeader);
-        return this;
     }
-
 
     public String getHeaderText() {
         return CommonActions.getText(loginHeader);

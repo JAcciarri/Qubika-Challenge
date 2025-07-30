@@ -18,6 +18,7 @@ public class CategoriesPage extends BasePage {
 
     private static final Logger logger = LoggerUtil.getLogger(CategoriesPage.class);
 
+    // ─── Page Elements
     @FindBy(xpath = "//*[text()=' Adicionar']//../button")
     public WebElement addCategoryButton;
 
@@ -43,33 +44,29 @@ public class CategoriesPage extends BasePage {
     @FindBy(xpath = "//div[contains(@class, 'toast-success')]")
     public WebElement successToastMessage;
 
-    /**
-     * Represents the last page navigation link in the pagination.
-     */
     @FindBy(xpath = "(//a[@class='page-link'])[last()-1]")
     public WebElement lastPageNavigationLink;
 
-    private static final By ROWS_LOCATOR        = By.xpath("//table//tr[@class='ng-star-inserted']");
-    private static final By NAME_CELL_LOCATOR   = By.cssSelector("td:nth-child(1)");
-    private static final By PARENT_CELL_LOCATOR = By.cssSelector("td:nth-child(2)");
+    // ─── Static dynamic locators
+    private static final By ROWS_LOCATOR             = By.xpath("//table//tr[@class='ng-star-inserted']");
+    private static final By NAME_CELL_LOCATOR        = By.cssSelector("td:nth-child(1)");
+    private static final By PARENT_CELL_LOCATOR      = By.cssSelector("td:nth-child(2)");
     private static final By LAST_PAGE_NAVIGATION_ITEM = By.xpath("(//li[contains(@class,'page-item')])[last()-1]");
 
 
-    public void clickAddCategory(){
-        CommonActions.waitForElementToDisappear(successToastMessage);
-        CommonActions.clickElement(addCategoryButton, "Add Category Button");
-    }
+    // ─── Public, business‐level methods
+
+    /** Adds a new *root* category and waits for success toast. */
     public void addCategory(String categoryName) {
-        clickAddCategory();
-        CommonActions.waitForElementDisplayed(modalHeader);
+        openModal();
         CommonActions.typeText(categoryNameInput, categoryName);
         CommonActions.clickElement(saveCategoryButton, "Save Category Button");
         CommonActions.waitForElementToDisappear(modalHeader);
     }
 
+    /** Adds a new *sub* category under the given parent and waits for success toast. */
     public void addSubCategory(String categoryName, String parentCategoryName) {
-        clickAddCategory();
-        CommonActions.waitForElementDisplayed(modalHeader);
+        openModal();
         CommonActions.typeText(categoryNameInput, categoryName);
         selectSubcategoryDropdown(parentCategoryName);
         CommonActions.waitForElementEnabled(saveCategoryButton);
@@ -128,5 +125,10 @@ public class CategoriesPage extends BasePage {
         return parentText.equals(parentCategoryName);
     }
 
+    private void openModal() {
+        CommonActions.waitForElementToDisappear(successToastMessage);
+        CommonActions.clickElement(addCategoryButton, "Add Category Button");
+        CommonActions.waitForElementDisplayed(modalHeader);
+    }
 
 }

@@ -22,6 +22,9 @@ public class SidebarPage extends BasePage {
     @FindBy(xpath = "//*[text()=' Salir ']//../a")
     public WebElement logoutLink;
 
+    /**
+     * Enum representing the menu items in the sidebar. More items can be added as needed.
+     */
     public enum MenuItem {
         DASHBOARD,
         CATEGORY_TYPES,
@@ -34,6 +37,10 @@ public class SidebarPage extends BasePage {
         return CommonActions.isElementDisplayed(qubikaLogo);
     }
 
+    /**
+     * Navigate to the specified menu item in the sidebar.
+     * @param menuItem The menu item to navigate to.
+     */
     public void navigateTo(MenuItem menuItem) {
         WebElement link = switch (menuItem) {
             case DASHBOARD -> dashboardLink;
