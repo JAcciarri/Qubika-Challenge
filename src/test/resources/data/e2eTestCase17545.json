@@ -1,0 +1,9 @@
+[
+  {
+    "testCaseId": "TC-17545",
+    "testDescription": "E2E TEST CASE: Create a user via API, log in via UI, then create & verify categories",
+    "validateHeaderLogin": "Qubika Club",
+    "categoryName": "TestCat_",
+    "subcategoryName": "TestSub_"
+  }
+]

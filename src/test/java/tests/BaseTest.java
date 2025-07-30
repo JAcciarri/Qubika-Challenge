@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webdriver.WebDriverFactory;
 
+import java.util.Map;
+
 public abstract class BaseTest {
     private static final Logger log = LoggerFactory.getLogger(BaseTest.class);
 
@@ -32,5 +34,13 @@ public abstract class BaseTest {
     public void tearDown(ITestResult result) {
         log.info("Quitting WebDriver for thread {}", Thread.currentThread().getId());
         DriverManager.unload();
+    }
+
+    public static void logTestStart(Map<String, String> testData) {
+        log.info("##### Starting Test: {} #####", testData.get("testCaseId"));
+        log.info("##### {} #####", testData.get("testDescription"));
+    }
+    public static void logTestEnd(Map<String, String> testData) {
+        log.info("##### Ending Test: {} #####", testData.get("testCaseId"));
     }
 }

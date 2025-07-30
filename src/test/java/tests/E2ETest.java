@@ -2,6 +2,7 @@ package tests;
 
 import api.services.UserService;
 import api.models.User;
+import dataprovider.E2ETestDataProvider;
 import factories.UserFactory;
 import io.restassured.response.Response;
 import org.openqa.selenium.WebDriver;
@@ -16,13 +17,14 @@ import pages.SidebarPage;
 import utils.CommonActions;
 import utils.LoggerUtil;
 import webdriver.DriverManager;
+import java.util.Map;
 
 public class E2ETest extends BaseTest {
 
     private static final Logger logger = LoggerUtil.getLogger(E2ETest.class);
 
-    @Test(description = "Create a user via API, log in via UI, then create & verify categories")
-    public void testEndToEnd() {
+    @Test(dataProvider = "e2eTestDataProvider", dataProviderClass = E2ETestDataProvider.class)
+    public void testEndToEnd(Map<String, String> testData) {
         WebDriver driver = DriverManager.getDriver();
         LoginPage loginPage = new LoginPage(driver);
         SoftAssert sAssert = new SoftAssert();
@@ -30,6 +32,7 @@ public class E2ETest extends BaseTest {
         DashboardPage dashboardPage = new DashboardPage();
         CategoriesPage categoriesPage = new CategoriesPage();
 
+        logTestStart(testData);
         // ──── 1) Create user via API
         logger.info("──── 1) Starting E2E test: Creating user via API");
         User newUser = UserFactory.createRandomUserForRegister();
@@ -46,7 +49,7 @@ public class E2ETest extends BaseTest {
         // ──── 2-3) Open login page & assert header, and inputs displayed
         logger.info("──── 2-3) Opening login page and verifying header and inputs");
         loginPage.open();
-        sAssert.assertEquals(loginPage.getHeaderText(), "Qubika Club", "Header text does not match on login page");
+        sAssert.assertEquals(loginPage.getHeaderText(), testData.get("validateHeaderLogin"), "Header text does not match on login page");
         sAssert.assertTrue(CommonActions.isElementDisplayed(loginPage.usernameInput), "Username input is not displayed");
         sAssert.assertTrue(CommonActions.isElementDisplayed(loginPage.passwordInput), "Password input is not displayed");
 
@@ -60,7 +63,7 @@ public class E2ETest extends BaseTest {
         logger.info("──── 6b) Navigating to Category Types and creating a new category");
         dashboardPage.sidebar().navigateTo(SidebarPage.MenuItem.CATEGORY_TYPES);
         CommonActions.waitForElementDisplayed(categoriesPage.header);
-        String categoryName = "Test Category " + System.currentTimeMillis();
+        final String categoryName = testData.get("categoryName") + System.currentTimeMillis();
         categoriesPage.addCategory(categoryName);
         sAssert.assertTrue(CommonActions.isElementDisplayed(categoriesPage.successToastMessage), "Success toast message is not displayed after category creation");
         categoriesPage.navigateToLastPage();
@@ -68,7 +71,7 @@ public class E2ETest extends BaseTest {
 
         // ──── 6c) Create a sub-category taking parent from the created category
         logger.info("──── 6c) Creating a sub-category under the created category");
-        String subCategoryName = "Test Subcategory " + System.currentTimeMillis();
+        final String subCategoryName = testData.get("subcategoryName") + System.currentTimeMillis();
         categoriesPage.addSubCategory(subCategoryName, categoryName);
         sAssert.assertTrue(CommonActions.isElementDisplayed(categoriesPage.successToastMessage), "Success toast message is not displayed after subcategory creation");
         categoriesPage.navigateToLastPage();
@@ -76,8 +79,8 @@ public class E2ETest extends BaseTest {
         sAssert.assertTrue(categoriesPage.isSubcategoryUnderParent(subCategoryName, categoryName), "Subcategory parent is not correct");
         sAssert.assertEquals(categoriesPage.getParentBasedOnCategory(subCategoryName), categoryName, "Subcategory parent does not match the expected category");
 
-
         sAssert.assertAll();
+        logTestEnd(testData);
 
     }
 
