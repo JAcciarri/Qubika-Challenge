@@ -50,7 +50,8 @@ public abstract class BaseTest {
             browser = "chrome"; // Default browser
         }
         if (executionEnv == null || executionEnv.isEmpty()) {
-            executionEnv = "local"; // Default execution environment
+            executionEnv = ConfigLoader.get("executionEnv");
+            if (executionEnv.isEmpty()) executionEnv = "local"; // Default execution environment
         }
 
         WebDriver driver = WebDriverFactory.createDriver(browser, executionEnv);
