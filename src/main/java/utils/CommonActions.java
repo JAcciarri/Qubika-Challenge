@@ -6,6 +6,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
+import java.util.List;
 
 public final class CommonActions {
 
@@ -88,6 +89,62 @@ public final class CommonActions {
                             .executeScript("return document.readyState").equals("complete"));
         } catch (TimeoutException e) {
             throw new RuntimeException("Page did not load within " + MAX_TIMEOUT + " seconds", e);
+        }
+    }
+
+    public static void selectDropdownOption(WebElement dropdown, String optionText) {
+        try {
+            final By opt = By.xpath(String.format(".//div[@role='option'][.//*[text()=\"%s\"]]", optionText));
+            WebElement choice = new WebDriverWait(driver(), Duration.ofSeconds(10))
+                    .until(ExpectedConditions.visibilityOfNestedElementsLocatedBy(
+                            dropdown, opt))
+                    .get(0);
+            logger.info("Selecting option: {}", optionText);
+            if(choice != null) {
+                choice.click();
+            } else {
+                logger.error("Option '{}' not found in dropdown", optionText);
+            }
+        } catch (NoSuchElementException e) {
+            logger.error("Failed to select option '{}': {}", optionText, e.getMessage());
+        }
+    }
+
+    public static List<WebElement> findElements(By locator) {
+        try {
+            return driver().findElements(locator);
+        } catch (NoSuchElementException e) {
+            logger.error("No elements found for locator: {}", locator, e);
+            return List.of(); // Return an empty list if no elements found
+        }
+    }
+
+    public static void waitForElementToDisappear(WebElement element) {
+        try {
+            new WebDriverWait(driver(), MAX_TIMEOUT)
+                    .until(ExpectedConditions.invisibilityOf(element));
+        } catch (TimeoutException e) {
+            logger.error("Element did not disappear within {} seconds: {}", MAX_TIMEOUT, element, e);
+        }
+    }
+
+    public static void waitForElementEnabled(WebElement element) {
+        try {
+            new WebDriverWait(driver(), MAX_TIMEOUT)
+                    .until(ExpectedConditions.elementToBeClickable(element));
+        } catch (TimeoutException e) {
+            throw new ElementNotInteractableException(
+                    "Element not enabled after " + MAX_TIMEOUT + "s: " + element, e);
+        }
+    }
+
+    public static void waitForElementContainAttribute(By locator, String attribute, String value) {
+        try {
+            new WebDriverWait(driver(), MAX_TIMEOUT)
+                    .until(ExpectedConditions.attributeContains(locator, attribute, value));
+        } catch (TimeoutException e) {
+            throw new ElementNotInteractableException(
+                    "Element did not contain attribute '" + attribute + "' with value '" + value + "' after " + MAX_TIMEOUT + "s: ", e);
         }
     }
 }

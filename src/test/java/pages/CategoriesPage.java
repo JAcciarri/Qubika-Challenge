@@ -1,8 +1,14 @@
 package pages;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.slf4j.Logger;
 import utils.CommonActions;
+import utils.LoggerUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CategoriesPage extends BasePage {
 
@@ -10,21 +16,117 @@ public class CategoriesPage extends BasePage {
         super();
     }
 
-    @FindBy(css = "button[class='btn btn-primary']")
+    private static final Logger logger = LoggerUtil.getLogger(CategoriesPage.class);
+
+    @FindBy(xpath = "//*[text()=' Adicionar']//../button")
     public WebElement addCategoryButton;
 
     @FindBy(xpath = "//h3[text()='Tipos de categorías']")
     public WebElement header;
 
+    @FindBy(xpath = "//*[text()='Adicionar tipo de categoría']")
+    public WebElement modalHeader;
+
+    @FindBy(css = "input[formcontrolname='name']")
+    public WebElement categoryNameInput;
+    @FindBy(css = "label[for='customCheckMain']")
+    public WebElement subcategoryCheckbox;
+
+    @FindBy(css = "button[type='submit']")
+    public WebElement saveCategoryButton;
+
+    @FindBy(xpath = "//ng-select[@formcontrolname='categoryId']")
+    public WebElement parentCategoryDropdown;
+    @FindBy(xpath = "//ng-select[@formcontrolname='categoryId']//input")
+    public WebElement parentCategoryInput;
+
+    @FindBy(xpath = "//div[contains(@class, 'toast-success')]")
+    public WebElement successToastMessage;
+
+    /**
+     * Represents the last page navigation link in the pagination.
+     */
+    @FindBy(xpath = "(//a[@class='page-link'])[last()-1]")
+    public WebElement lastPageNavigationLink;
+
+    private static final By ROWS_LOCATOR        = By.xpath("//table//tr[@class='ng-star-inserted']");
+    private static final By NAME_CELL_LOCATOR   = By.cssSelector("td:nth-child(1)");
+    private static final By PARENT_CELL_LOCATOR = By.cssSelector("td:nth-child(2)");
+    private static final By LAST_PAGE_NAVIGATION_ITEM = By.xpath("(//li[contains(@class,'page-item')])[last()-1]");
+
+
     public void clickAddCategory(){
+        CommonActions.waitForElementToDisappear(successToastMessage);
         CommonActions.clickElement(addCategoryButton, "Add Category Button");
     }
-    public String getHeaderText() {
-        return CommonActions.getText(header);
+    public void addCategory(String categoryName) {
+        clickAddCategory();
+        CommonActions.waitForElementDisplayed(modalHeader);
+        CommonActions.typeText(categoryNameInput, categoryName);
+        CommonActions.clickElement(saveCategoryButton, "Save Category Button");
+        CommonActions.waitForElementToDisappear(modalHeader);
     }
 
+    public void addSubCategory(String categoryName, String parentCategoryName) {
+        clickAddCategory();
+        CommonActions.waitForElementDisplayed(modalHeader);
+        CommonActions.typeText(categoryNameInput, categoryName);
+        selectSubcategoryDropdown(parentCategoryName);
+        CommonActions.waitForElementEnabled(saveCategoryButton);
+        CommonActions.clickElement(saveCategoryButton, "Save Category Button");
+        CommonActions.waitForElementToDisappear(modalHeader);
+    }
 
+    public void selectSubcategoryDropdown(String parentCategoryName) {
+        CommonActions.clickElement(subcategoryCheckbox, "Subcategory Checkbox");
+        CommonActions.waitForElementDisplayed(parentCategoryDropdown);
+        CommonActions.typeText(parentCategoryInput, parentCategoryName);
+        CommonActions.selectDropdownOption(parentCategoryDropdown, parentCategoryName);
+    }
 
+    public void navigateToLastPage() {
+        CommonActions.clickElement(lastPageNavigationLink, "Last Page Navigation Link");
+        CommonActions.waitForElementContainAttribute(
+                LAST_PAGE_NAVIGATION_ITEM, "class", "active");
+    }
+
+    public boolean isCategoryPresent(String categoryName) {
+        CommonActions.waitForElementDisplayed(header);
+        List<String> names = new ArrayList<>();
+        // Dinamically find row corresponding to the category name
+        List<WebElement> rows = CommonActions.findElements(ROWS_LOCATOR);
+        for (WebElement row : rows) {
+            WebElement nameCell = row.findElement(NAME_CELL_LOCATOR);
+            names.add(CommonActions.getText(nameCell));
+        }
+        return names.contains(categoryName);
+    }
+
+    public String getParentBasedOnCategory(String categoryName) {
+        CommonActions.waitForElementDisplayed(header);
+        List<WebElement> rows = CommonActions.findElements(ROWS_LOCATOR);
+        for (WebElement row : rows) {
+            WebElement nameCell = row.findElement(NAME_CELL_LOCATOR);
+            String nameText = CommonActions.getText(nameCell);
+            if (nameText.equals(categoryName)) {
+                WebElement parentCell = row.findElement(PARENT_CELL_LOCATOR);
+                return CommonActions.getText(parentCell);
+            }
+        }
+        return null; // Category not found
+    }
+
+    public boolean isSubcategoryUnderParent(String subCategoryName, String parentCategoryName) {
+        CommonActions.waitForElementDisplayed(header);
+        if(!isCategoryPresent(subCategoryName)) {
+            return false; // If subcategory is not present, no need to check parent
+        }
+        String parentText = getParentBasedOnCategory(subCategoryName);
+        if (parentText == null) {
+            return false; // If parent is not found, return false
+        }
+        return parentText.equals(parentCategoryName);
+    }
 
 
 }
