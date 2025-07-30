@@ -9,17 +9,12 @@ import static io.restassured.http.ContentType.JSON;
 
 public class UserService {
 
-    private final String baseUri;
-
-    public UserService() {
-        this.baseUri = ConfigLoader.get("api.baseUrl");
-        RestAssured.baseURI = this.baseUri;
-    }
+    public UserService() {}
 
     /** Creates a new user via the API
-    Return type is Response to allow flexible handling of API responses,
-    and to facilitate further processing or assertions in tests.
-    * @param user The User object containing user details to be created
+     Return type is Response to allow flexible handling of API responses,
+     and to facilitate further processing or assertions in tests.
+     * @param user The User object containing user details to be created
      * @return Response object containing the API response
      */
     public Response createUser(User user) {

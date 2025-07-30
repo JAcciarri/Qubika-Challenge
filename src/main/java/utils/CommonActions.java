@@ -1,5 +1,6 @@
 package utils;
 
+import config.ConfigLoader;
 import org.slf4j.Logger;
 import webdriver.DriverManager;
 import org.openqa.selenium.*;
@@ -10,7 +11,8 @@ import java.util.List;
 
 public final class CommonActions {
 
-    private static final Duration MAX_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration MAX_TIMEOUT = Duration.ofSeconds(
+            Long.parseLong(ConfigLoader.get("timeouts.maxWait")));
     private static final Logger logger = LoggerUtil.getLogger(CommonActions.class);
     private CommonActions() {}
 
@@ -82,6 +84,7 @@ public final class CommonActions {
         }
     }
 
+    /** Wait for the page to fully load by checking document.readyState. */
     public static void waitForPageToLoad() {
         try {
             new WebDriverWait(driver(), MAX_TIMEOUT)
@@ -92,10 +95,11 @@ public final class CommonActions {
         }
     }
 
+    /** Select an option from a dropdown by visible text. */
     public static void selectDropdownOption(WebElement dropdown, String optionText) {
         try {
             final By opt = By.xpath(String.format(".//div[@role='option'][.//*[text()=\"%s\"]]", optionText));
-            WebElement choice = new WebDriverWait(driver(), Duration.ofSeconds(10))
+            WebElement choice = new WebDriverWait(driver(), MAX_TIMEOUT)
                     .until(ExpectedConditions.visibilityOfNestedElementsLocatedBy(
                             dropdown, opt))
                     .get(0);
@@ -110,6 +114,7 @@ public final class CommonActions {
         }
     }
 
+    /** Find elements by locator, returning an empty list if none found. */
     public static List<WebElement> findElements(By locator) {
         try {
             return driver().findElements(locator);
@@ -119,6 +124,7 @@ public final class CommonActions {
         }
     }
 
+    /** Wait for an element to disappear from the page/DOM. */
     public static void waitForElementToDisappear(WebElement element) {
         try {
             new WebDriverWait(driver(), MAX_TIMEOUT)
@@ -128,6 +134,7 @@ public final class CommonActions {
         }
     }
 
+    /** Wait for an element to become enabled (clickable). */
     public static void waitForElementEnabled(WebElement element) {
         try {
             new WebDriverWait(driver(), MAX_TIMEOUT)
@@ -138,6 +145,7 @@ public final class CommonActions {
         }
     }
 
+    /** Wait for an element to contain a specific attribute with a given value. */
     public static void waitForElementContainAttribute(By locator, String attribute, String value) {
         try {
             new WebDriverWait(driver(), MAX_TIMEOUT)

@@ -79,6 +79,7 @@ public class E2ETest extends BaseTest {
         sAssert.assertTrue(categoriesPage.isSubcategoryUnderParent(subCategoryName, categoryName), "Subcategory parent is not correct");
         sAssert.assertEquals(categoriesPage.getParentBasedOnCategory(subCategoryName), categoryName, "Subcategory parent does not match the expected category");
 
+        dashboardPage.sidebar().logout();
         sAssert.assertAll();
         logTestEnd(testData);
 

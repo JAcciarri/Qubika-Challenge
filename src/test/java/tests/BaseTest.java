@@ -1,6 +1,9 @@
 package tests;
 
+import config.ConfigLoader;
+import io.restassured.RestAssured;
 import org.openqa.selenium.WebDriver;
+import org.testng.annotations.BeforeSuite;
 import webdriver.DriverManager;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
@@ -15,6 +18,10 @@ import java.util.Map;
 public abstract class BaseTest {
     private static final Logger log = LoggerFactory.getLogger(BaseTest.class);
 
+    @BeforeSuite
+    public void configureRestAssured() {
+        RestAssured.baseURI = ConfigLoader.get("api.baseUrl");
+    }
     @BeforeMethod(alwaysRun = true)
     public void setUp(ITestContext context) {
         String browser      = context.getCurrentXmlTest().getParameter("browser");
@@ -26,7 +33,7 @@ public abstract class BaseTest {
             executionEnv = "local"; // Default execution environment
         }
         log.info("Initializing WebDriver: browser={}, env={}", browser, executionEnv);
-        WebDriver driver = WebDriverFactory.createDriver(browser);
+        WebDriver driver = WebDriverFactory.createDriver(browser, executionEnv);
         DriverManager.setDriver(driver);
     }
 
