@@ -80,4 +80,14 @@ public final class CommonActions {
             return false;
         }
     }
+
+    public static void waitForPageToLoad() {
+        try {
+            new WebDriverWait(driver(), MAX_TIMEOUT)
+                    .until(webDriver -> ((JavascriptExecutor) webDriver)
+                            .executeScript("return document.readyState").equals("complete"));
+        } catch (TimeoutException e) {
+            throw new RuntimeException("Page did not load within " + MAX_TIMEOUT + " seconds", e);
+        }
+    }
 }
