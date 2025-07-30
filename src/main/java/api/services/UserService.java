@@ -1,6 +1,7 @@
 package api.services;
 
 import api.models.User;
+import config.ConfigLoader;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
@@ -8,6 +9,12 @@ import static io.restassured.http.ContentType.JSON;
 
 public class UserService {
 
+    private final String baseUri;
+
+    public UserService() {
+        this.baseUri = ConfigLoader.get("api.baseUrl");
+        RestAssured.baseURI = this.baseUri;
+    }
 
     /** Creates a new user via the API
     Return type is Response to allow flexible handling of API responses,
@@ -20,7 +27,7 @@ public class UserService {
                 .contentType(JSON)
                 .body(user)
                 .when()
-                .post("/users")
+                .post("/auth/register")
                 .andReturn();
     }
 }

@@ -1,22 +1,30 @@
 package api.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Represents a user in the Qubika Sports Club system.
  * Used for API request/response mapping via Jackson.
  */
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
+    private String id;
     private String email;
     private String password;
     private String firstName;
     private String lastName;
+    private String[] roles;
+
 
     public User() {}
 
-    public User(String email, String password, String firstName, String lastName) {
+    public User(String email, String password, String firstName, String lastName, String... roles) {
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.roles = roles;
     }
 
     public String getEmail() {
@@ -25,6 +33,10 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getPassword() {
@@ -58,5 +70,13 @@ public class User {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 '}';
+    }
+
+    public String[] getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String[] roles) {
+        this.roles = roles;
     }
 }
